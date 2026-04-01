@@ -65,6 +65,17 @@ def get_all_people():
 
     return jsonify(people_serialized), 200
 
+#Endpoint para obtener todos los usuarios
+@app.route('/users', methods=['GET'])
+def get_all_users():
+    #consultamos todos los people en la base de datos
+    users = User.query.all()
+
+    user_serialized = [user.serialize() for user in users]
+
+    return jsonify(user_serialized), 200
+
+
 #Endpoint para obtener un SOLO planeta
 @app.route('/planets/<int:planet_id>', methods=['GET'])
 def get_single_planet(planet_id):
@@ -149,12 +160,61 @@ def add_favorite_people(people_id):
     return jsonify({"msg": "Personaje agregado a favoritos con exito"}), 201 # 201 significa creado
 
 
+####### ENDPOINTS PARA DELETE #######
+@app.route('/favorite/planet/<int:planet_id>', methods=['DELETE'])
+def delete_favorite_planet(planet_id):
+    current_user_id = 1
+    
+    #Buscamos el favorito especifico de este usuario y este planeta
+    favorite_to_delete = Favorite.query.filter_by(user_id=current_user_id, planet_id=planet_id).first()
+
+    #Si registro no existe no se puede borrar (manejo de errores)
+    if favorite_to_delete is None:
+        return jsonify({"Error": "El planeta no esta en tus favoritos"}), 404
+    
+    #Si existe lo eliminamos de la zona de espera
+    db.session.delete(favorite_to_delete)
+
+    # guardamos los cambios
+    db.session.commit()
+
+    return jsonify({"message": "Planeta eliminado de favoritos con exito"}), 200
 
 
 
+####### ENDPOINTS PARA DELETE los personajes #######
 
+@app.route('/favorite/people/<int:people_id>', methods=['DELETE'])
+def delete_favorite_people(people_id):
+    current_user_id = 1
+    
+    #Buscamos el favorito especifico de este usuario y este planeta
+    favorite_to_delete = Favorite.query.filter_by(user_id=current_user_id, people_id=people_id).first()
 
+    #Si registro no existe no se puede borrar (manejo de errores)
+    if favorite_to_delete is None:
+        return jsonify({"Error": "El personaje no esta en tus favoritos"}), 404
+    
+    #Si existe lo eliminamos de la zona de espera
+    db.session.delete(favorite_to_delete)
 
+    # guardamos los cambios
+    db.session.commit()
+
+    return jsonify({"message": "Personaje eliminado de favoritos con exito"}), 200
+
+# Endpoint para obtener todo los favoritos
+@app.route('/users/favorites', methods=['GET'])
+def get_all_favorites():
+    current_user_id = 1
+
+    get_favorites = Favorite.query.filter_by(user_id=current_user_id).all()
+
+    user_favorites = [favorite.serialize() for favorite in get_favorites]
+
+    return jsonify(user_favorites), 200
+
+    
 
 
 
