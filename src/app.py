@@ -45,6 +45,51 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
+#Endpoint para obtener todos los planetas
+@app.route('/planets', methods=['GET'])
+def get_all_planets():
+    #consultamos todos los planetas en la base de datos
+    planets = Planet.query.all()
+
+    planets_serialized = [planet.serialize() for planet in planets]
+
+    return jsonify(planets_serialized), 200
+
+#Endpoint para obtener todos los personsajes
+@app.route('/people', methods=['GET'])
+def get_all_people():
+    #consultamos todos los people en la base de datos
+    people = People.query.all()
+
+    people_serialized = [character.serialize() for character in people]
+
+    return jsonify(people_serialized), 200
+
+#Endpoint para obtener un SOLO planeta
+@app.route('/planets/<int:planet_id>', methods=['GET'])
+def get_single_planet(planet_id):
+    #se busca el planeta en la base de datos usando el ID
+    planet = Planet.query.get(planet_id)
+
+    #manejo de errores
+    if planet is None:
+        return jsonify({"Error": "El planeta no existe"}), 404
+
+    return jsonify(planet.serialize()), 200
+
+#Endpoint para obtener un SOLO personaje o character
+@app.route('/people/<int:people_id>', methods=['GET'])
+def get_single_people(people_id):
+    #se busca el planeta en la base de datos usando el ID
+    people = People.query.get(people_id)
+
+    #manejo de errores
+    if people is None:
+        return jsonify({"Error": "El personaje no existe"}), 404
+
+    return jsonify(people.serialize()), 200
+
+
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
