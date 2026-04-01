@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, Planet, People, Favorite
 #from models import Person
 
 app = Flask(__name__)
@@ -80,7 +80,7 @@ def get_single_planet(planet_id):
 #Endpoint para obtener un SOLO personaje o character
 @app.route('/people/<int:people_id>', methods=['GET'])
 def get_single_people(people_id):
-    #se busca el planeta en la base de datos usando el ID
+    #se busca el personaje en la base de datos usando el ID
     people = People.query.get(people_id)
 
     #manejo de errores
@@ -88,6 +88,74 @@ def get_single_people(people_id):
         return jsonify({"Error": "El personaje no existe"}), 404
 
     return jsonify(people.serialize()), 200
+
+#Endpoint para obtener un SOLO usuario
+@app.route('/users/<int:user_id>', methods=['GET'])
+def get_single_user(user_id):
+    #se busca el personaje en la base de datos usando el ID
+    user = User.query.get(user_id)
+
+    #manejo de errores
+    if user is None:
+        return jsonify({"Error": "El usuario no existe"}), 404
+
+    return jsonify(user.serialize()), 200
+
+
+#End point para agregar favorito planeta
+@app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
+def add_favorite_planet(planet_id):
+    current_user_id = 1
+
+    # Verificar que el planeta realmente exista
+    planet = Planet.query.get(planet_id)
+    if planet is None:
+        return jsonify({"Error": "El planeta que intentas guardar no existe"}), 404
+
+    #verificar si ya esta en la lista de favoritos
+    existing_favorite = Favorite.query.filter_by(user_id=current_user_id, planet_id=planet_id).first()
+    if existing_favorite:
+        return jsonify({"msg": "Este planeta ya esta en tus favoritos"}), 400
+
+    # crear el nuevo registro
+    new_favorite = Favorite(user_id=current_user_id, planet_id=planet_id)
+
+    db.session.add(new_favorite)
+    db.session.commit()
+
+    return jsonify({"msg": "Planeta agregado a favoritos con exito"}), 201 # 201 significa creado
+
+#End point para agregar favorito personaje
+@app.route('/favorite/people/<int:people_id>', methods=['POST'])
+def add_favorite_people(people_id):
+    current_user_id = 1
+
+    # Verificar que el planeta realmente exista
+    people = People.query.get(people_id)
+    if people is None:
+        return jsonify({"Error": "El personaje que intentas guardar no existe"}), 404
+
+    #verificar si ya esta en la lista de favoritos
+    existing_favorite = Favorite.query.filter_by(user_id=current_user_id, people_id=people_id).first()
+    if existing_favorite:
+        return jsonify({"msg": "Este personaje ya esta en tus favoritos"}), 400
+
+    # crear el nuevo registro
+    new_favorite = Favorite(user_id=current_user_id, people_id=people_id)
+
+    db.session.add(new_favorite)
+    db.session.commit()
+
+    return jsonify({"msg": "Personaje agregado a favoritos con exito"}), 201 # 201 significa creado
+
+
+
+
+
+
+
+
+
 
 
 # this only runs if `$ python src/app.py` is executed
