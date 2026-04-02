@@ -126,7 +126,7 @@ def add_favorite_planet(planet_id):
     #verificar si ya esta en la lista de favoritos
     existing_favorite = Favorite.query.filter_by(user_id=current_user_id, planet_id=planet_id).first()
     if existing_favorite:
-        return jsonify({"msg": "Este planeta ya esta en tus favoritos"}), 400
+        return jsonify({"msg": f"El planeta: {planet.name} ya esta en tus favoritos"}), 400
 
     # crear el nuevo registro
     new_favorite = Favorite(user_id=current_user_id, planet_id=planet_id)
@@ -134,7 +134,7 @@ def add_favorite_planet(planet_id):
     db.session.add(new_favorite)
     db.session.commit()
 
-    return jsonify({"msg": "Planeta agregado a favoritos con exito"}), 201 # 201 significa creado
+    return jsonify({"msg": f"El Planeta {planet.name} agregado a favoritos con exito"}), 201 # 201 significa creado
 
 #End point para agregar favorito personaje
 @app.route('/favorite/people/<int:people_id>', methods=['POST'])
@@ -149,7 +149,7 @@ def add_favorite_people(people_id):
     #verificar si ya esta en la lista de favoritos
     existing_favorite = Favorite.query.filter_by(user_id=current_user_id, people_id=people_id).first()
     if existing_favorite:
-        return jsonify({"msg": "Este personaje ya esta en tus favoritos"}), 400
+        return jsonify({"msg": f"Este personaje: {people.name} ya esta en tus favoritos"}), 400
 
     # crear el nuevo registro
     new_favorite = Favorite(user_id=current_user_id, people_id=people_id)
@@ -178,7 +178,7 @@ def delete_favorite_planet(planet_id):
     # guardamos los cambios
     db.session.commit()
 
-    return jsonify({"message": "Planeta eliminado de favoritos con exito"}), 200
+    return jsonify({"message": f"El planeta con ID {planet_id} fue eliminado de favoritos con exito"}), 200
 
 
 
@@ -201,7 +201,7 @@ def delete_favorite_people(people_id):
     # guardamos los cambios
     db.session.commit()
 
-    return jsonify({"message": "Personaje eliminado de favoritos con exito"}), 200
+    return jsonify({"message": f"El personaje con ID {people_id} eliminado de favoritos con exito"}), 200
 
 # Endpoint para obtener todo los favoritos
 @app.route('/users/favorites', methods=['GET'])
@@ -235,7 +235,7 @@ def create_planet():
     db.session.add(new_planet)
     db.session.commit()
 
-    return jsonify({"msg": "Planeta creado exitosamente", "planet": new_planet.serialize()}), 201  
+    return jsonify({"msg": f"Planeta: {new_planet.name} creado exitosamente", "planet": new_planet.serialize()}), 201  
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
