@@ -214,9 +214,28 @@ def get_all_favorites():
 
     return jsonify(user_favorites), 200
 
-    
+# Endpoint para agregar planetas
+@app.route('/planets', methods=['POST'])
+def create_planet():
+    # recibir los datos que vienen el body al hacer el POST con postman
+    body = request.get_json()
 
+    # 2 validar que el usuario si haya enviado el nombre del planeta y q no este vacio
+    if "name" not in body:
+        return jsonify({"Error": "El campo 'name' es obligatorio"}), 400
 
+    # 3 creacion del nuevo planeta con los datos recibidos
+    new_planet = Planet(
+        name=body["name"],
+        climate=body.get("climate", "Desconocido"),
+        population=body.get("population", "Desconocido")
+    )
+
+    # guardar en la base de datos
+    db.session.add(new_planet)
+    db.session.commit()
+
+    return jsonify({"msg": "Planeta creado exitosamente", "planet": new_planet.serialize()}), 201  
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
